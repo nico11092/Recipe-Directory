@@ -22,6 +22,7 @@ public class Recipe {
     }
 
     public void addIngredient(Ingredient _ingredient){ this.ingredient.add(_ingredient); }
+    public void addListIngredient(ArrayList<Ingredient> _list_ingr){ this.ingredient.addAll(_list_ingr); }
     public void addPreparation(String _preparation){ this.preparation.add(_preparation); }
 
     public void setComment(String _comment){ this.comment = _comment; }

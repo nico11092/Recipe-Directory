@@ -21,7 +21,7 @@ public class Ingredient {
 
     public void addPreparation(String _preparation){ this.preparation.add(_preparation); }
     public void addIngredient(Ingredient _ingredient){ this.ingredient.add(_ingredient); }
-    public void addListIngredient(ArrayList<Ingredient> _list_ingr){ this.ingredient = _list_ingr; }
+    public void addListIngredient(ArrayList<Ingredient> _list_ingr){ this.ingredient.addAll(_list_ingr); }
 
     public String getName(){ return this.name; }
     public Double getAmount(){ return this.amount; }
