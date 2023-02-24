@@ -24,7 +24,6 @@ public class RecipePrincipale extends javax.swing.JFrame{
 
     public RecipePrincipale(){
         this.myRepo = new RecipeRepo();
-        this.myRepo.init();
 
         this.initComponents();
     }
@@ -259,7 +258,7 @@ public class RecipePrincipale extends javax.swing.JFrame{
                 case 17:
                     //correspond à la question 21
                     my_map_Recipe_int = myRepo.repartition_recette_etape();
-                    for(Map.Entry mapentry : my_map_Recipe_int.entrySet() ){
+                    for( Map.Entry mapentry : my_map_Recipe_int.entrySet() ){
                         Recipe _recette = (Recipe)mapentry.getKey();
                         reponse = reponse + _recette.getTitle()+ " : "+mapentry.getValue() + " oeuf(s)\n";
                     }

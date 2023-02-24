@@ -18,11 +18,13 @@ import Models.Recipe;
 import Models.Related;
 
 public class RecipeRepo {
+    private int compteur_prepa = 0;
     private ArrayList<Recipe> list_Recipes;
 
     public RecipeRepo(){
         this.list_Recipes = new ArrayList<>();
         this.init();
+        this.affiche();
     }
 
     public void addRecipe(Recipe _recipe){ this.list_Recipes.add(_recipe); }
@@ -41,7 +43,7 @@ public class RecipeRepo {
             Document doc = dBuilder.parse(inputFile);
             doc.getDocumentElement().normalize();
             NodeList nList = doc.getElementsByTagName("rcp:recipe");
-            for (int temp = 0; temp < nList.getLength()-1; temp++) {
+            for (int temp = 0; temp < nList.getLength(); temp++) {
                 Node nNode = nList.item(temp);
                 if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                     Element eElement = (Element) nNode;
@@ -54,82 +56,10 @@ public class RecipeRepo {
                     Recipe recette = new Recipe(id, title, date);
 
                     //ingredient 
-                    int compteur_ing = 0;
-                    int compteur_prepa = 0;
                     NodeList list_ingr =  eElement.getElementsByTagName("rcp:ingredient");
                     for(int i = 0 ; i < list_ingr.getLength() ; i++){
                         Node nIngredient = list_ingr.item(i);
-                        if(nIngredient.getNodeType() == Node.ELEMENT_NODE){
-                            Element eIngredient = (Element) nIngredient;
-
-                            String name = eIngredient.getAttribute("name");
-
-                            Ingredient ingredient = new Ingredient(name);
-
-                            if(eIngredient.getAttribute("amount") != ""){
-                                String amount = eIngredient.getAttribute("amount");
-                                if(!amount.equals("*")){
-                                    ingredient.setAmount(Double.valueOf(amount));
-                                }
-                            }
-
-                            if(eIngredient.getAttribute("unit") != ""){
-                                String unit = eIngredient.getAttribute("unit");
-                                ingredient.setUnit(unit);
-                            }
-
-                            if(eIngredient.getElementsByTagName("rcp:ingredient").item(0) != null){
-                                NodeList list_list_ingr =  eIngredient.getElementsByTagName("rcp:ingredient");
-                                for(int a = 0 ; a < list_list_ingr.getLength() ; a++){
-                                    Node nnIngredient = list_list_ingr.item(a);
-                                    if(nnIngredient.getNodeType() == Node.ELEMENT_NODE){
-                                        Element eeIngredient = (Element) nnIngredient;
-
-                                        String name_ = eeIngredient.getAttribute("name");
-                                        Ingredient ingredient_ = new Ingredient(name_);
-
-                                        if(eeIngredient.getAttribute("amount") != ""){
-                                            String amount_ = eeIngredient.getAttribute("amount");
-                                            if(!amount_.equals("*")){
-                                                ingredient_.setAmount(Double.valueOf(amount_));
-                                            }
-                                        }
-
-                                        if(eeIngredient.getAttribute("unit") != ""){
-                                            String unit_ = eeIngredient.getAttribute("unit");
-                                            ingredient_.setUnit(unit_);
-                                        }
-                                        ingredient.addIngredient(ingredient_);
-                                    }
-                                    compteur_ing++;
-                                }
-                            }
-                            i = i + compteur_ing;
-                            compteur_ing = 0;
-
-                            if(eIngredient.getElementsByTagName("rcp:preparation").item(0) != null){
-                                NodeList list_list_prepa =  eIngredient.getElementsByTagName("rcp:preparation");
-                                for(int z = 0 ; z < list_list_prepa.getLength() ; z++){
-                                    Node nnIngredientPrepa = list_list_prepa.item(z);
-                                    if(nnIngredientPrepa.getNodeType() == Node.ELEMENT_NODE){
-                                        Element eeIngredientPrepa = (Element) nnIngredientPrepa;
-
-                                        NodeList list_step =  eeIngredientPrepa.getElementsByTagName("rcp:step");
-                                        for(int j = 0 ; j < list_step.getLength() ; j++){
-                                            Node nStep = list_step.item(j);
-                                            if(nStep.getNodeType() == Node.ELEMENT_NODE){
-                                                Element eStep = (Element) nStep;
-                                                
-                                                String step = eStep.getTextContent();
-                                                ingredient.addPreparation(step);
-                                            }
-                                        }
-                                    }
-                                    compteur_prepa++;
-                                }
-                            }
-                            recette.addIngredient(ingredient);
-                        }
+                        recette.addListIngredient(getIngredient(nIngredient, eElement.getNodeName(), ""));
                     }
 
                     //preparation 
@@ -183,12 +113,75 @@ public class RecipeRepo {
                         recette.setRelated(rel);
                     }
                     addRecipe(recette);
+                    compteur_prepa = 0;
                 }
             }
-        
         } catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+    public ArrayList<Ingredient> getIngredient(Node nIngr, String parent_name, String nom_du_parent){
+        ArrayList<Ingredient> my_list = new ArrayList<>();
+		if(nIngr.getNodeType() == Node.ELEMENT_NODE && nIngr.getParentNode().getNodeName() == parent_name){
+            Element parent = (Element) nIngr.getParentNode();
+            Element eIngredient = (Element) nIngr;
+
+            if(parent.getAttribute("name") == nom_du_parent){
+                String name = eIngredient.getAttribute("name");
+                Ingredient ingredient = new Ingredient(name);
+
+                if(eIngredient.getAttribute("amount") != ""){
+                    String amount = eIngredient.getAttribute("amount");
+                    if(!amount.equals("*")){
+                        ingredient.setAmount(Double.valueOf(amount));
+                    }
+                }
+
+                if(eIngredient.getAttribute("unit") != ""){
+                    String unit = eIngredient.getAttribute("unit");
+                    ingredient.setUnit(unit);
+                }
+
+                if(eIngredient.getElementsByTagName("rcp:ingredient").getLength() > 0){
+                    NodeList list_list_ingr = eIngredient.getElementsByTagName("rcp:ingredient");
+                    for(int i = 0 ; i < list_list_ingr.getLength() ; i++){
+                        Node nnIngredient = list_list_ingr.item(i);
+                        
+                        ingredient.addListIngredient(getIngredient(nnIngredient, eIngredient.getNodeName() ,name));
+                    }
+                }
+
+                if(eIngredient.getElementsByTagName("rcp:preparation").getLength() > 0){
+                    NodeList list_list_prepa =  eIngredient.getElementsByTagName("rcp:preparation");
+                    for(int z = 0 ; z < list_list_prepa.getLength() ; z++){
+                        Node nnIngredientPrepa = list_list_prepa.item(z);
+                        if(nnIngredientPrepa.getNodeType() == Node.ELEMENT_NODE ){
+                            Element eeParentPrepa = (Element) nnIngredientPrepa.getParentNode();
+                            Element eeIngredientPrepa = (Element) nnIngredientPrepa;
+
+                            if(eeParentPrepa.getAttribute("name") == name){
+
+                                NodeList list_step =  eeIngredientPrepa.getElementsByTagName("rcp:step");
+                                for(int j = 0 ; j < list_step.getLength() ; j++){
+                                    Node nStep = list_step.item(j);
+                                    if(nStep.getNodeType() == Node.ELEMENT_NODE){
+                                        Element eStep = (Element) nStep;
+                                        
+                                        String step = eStep.getTextContent();
+                                        ingredient.addPreparation(step);
+                                    }
+                                }
+                                compteur_prepa++;
+                            }
+                        }
+                        
+                    }
+                }
+                my_list.add(ingredient);
+            }
+        }
+        return my_list;
     }
 
     //question 4 (afficher)
