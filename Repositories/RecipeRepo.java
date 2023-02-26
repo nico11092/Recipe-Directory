@@ -24,7 +24,6 @@ public class RecipeRepo {
     public RecipeRepo(){
         this.list_Recipes = new ArrayList<>();
         this.init();
-        this.affiche();
     }
 
     public void addRecipe(Recipe _recipe){ this.list_Recipes.add(_recipe); }
@@ -231,7 +230,7 @@ public class RecipeRepo {
 
     //question 13 (retourner)
     public void ingr_commun(){
-
+        
     }
 
     //question 14 (afficher)
@@ -262,14 +261,10 @@ public class RecipeRepo {
     }
 
     //question 18 (retrouner)
-    public void ingredient_plus_utilise(){
-        System.out.println(this.list_Recipes.stream().map(r -> r.getAllIngredient().stream()
-        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+    public String ingredient_plus_utilise(){
+        return this.list_Recipes.stream().flatMap(r -> r.getAllIngredient().stream()).collect(Collectors.groupingBy(Ingredient::getName, Collectors.counting()))
         .entrySet().stream().max(Map.Entry.comparingByValue())
-        .map(Map.Entry::getKey).get())
-        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-        .entrySet().stream().max(Map.Entry.comparingByValue())
-        .map(Map.Entry::getKey).get().toString());
+            .map(Map.Entry::getKey).get().toString();
     }
 
     //question 19 (afficher)
@@ -279,7 +274,7 @@ public class RecipeRepo {
 
     //question 20 (afficher)
     public void ingredient_fonction_recette(){
-
+        
     }
 
     //question 21 (retourner)

@@ -138,7 +138,7 @@ public class RecipePrincipale extends javax.swing.JFrame{
 
         pack();
     }
-
+    
     private void AffichageActionPerformed(java.awt.event.ActionEvent evt) {                                           
         this.value_affichage = this.Affichage.getSelectedIndex();
         traitement();
@@ -244,6 +244,7 @@ public class RecipePrincipale extends javax.swing.JFrame{
                     break;
                 case 14:
                     //correspond à la question 18
+                    reponse = myRepo.ingredient_plus_utilise();
                     break;
                 case 15:
                     //correspond à la question 19
@@ -279,7 +280,7 @@ public class RecipePrincipale extends javax.swing.JFrame{
         }
     }
 
-    public static void main(String args[]){
+    public static void main(String args[]) throws Exception{
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run(){
                 new RecipePrincipale().setVisible(true);
